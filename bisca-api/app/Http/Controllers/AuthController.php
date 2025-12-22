@@ -81,35 +81,4 @@ class AuthController extends Controller
         return response()->json(['message' => 'Logged out successfully.']);
     }
 
-    public function destroy(Request $request)
-    {
-        $user = $request->user();
-
-        if ($user->type === 'A') {
-            return response()->json([
-                'message' => 'Admins cannot delete their own accounts'
-            ], 403); // Forbidden
-        }
-
-        $request->validate([
-            'password' => 'required'
-        ]);
-
-        if (!Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Incorrect Password. Try again.'
-            ], 403);
-        }
-
-        $user->delete();
-
-        // Revokes tokens, basically logs out forcefully
-        $user->tokens()->delete();
-
-        return response()->json([
-            'message' => 'Account deleted successfully.'
-        ]);
-    }
-
-
 }

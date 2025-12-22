@@ -1,0 +1,108 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use App\Models\User;
+
+class UserController extends Controller
+{
+    // Show own profile
+    public function show(Request $request)
+    {
+        return $request->user();
+    }
+
+    // Update own profile
+    public function update(Request $request)
+    {
+        $user = $request->user();
+
+        // 1. Validação
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            // Email Should be unique but not counting with the current email
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            // Same thing applies to the nickname
+            'nickname' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            // Password is not obligatory
+            'password' => 'sometimes|string|min:3|confirmed',
+            // Photo is not obligatory
+            'photo_avatar' => 'nullable|image|max:2048', // Max 2MB
+        ]);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->nickname = $validated['nickname'];
+
+        // Update password
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        if ($request->hasFile('photo_avatar')) {
+            if ($user->photo_avatar_filename && Storage::disk('public')->exists('photos/' . $user->photo_avatar_filename)) {
+                Storage::disk('public')->delete('photos/' . $user->photo_avatar_filename);
+            }
+
+            //'storage/app/public/photos'
+            $path = $request->file('photo_avatar')->store('photos', 'public');
+
+            // Only write the filename on the db
+            $user->photo_avatar_filename = basename($path);
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profile updated successfully.',
+            'user' => $user
+        ]);
+    }
+
+    public function destroy(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->type === 'A') {
+            return response()->json([
+                'message' => 'Admins cannot delete their own accounts'
+            ], 403); // Forbidden
+        }
+
+        $request->validate([
+            'password' => 'required'
+        ]);
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Incorrect Password. Try again.'
+            ], 403);
+        }
+
+        $user->delete();
+
+        // Forfeits all coins associated with the account
+        $user->coins_balance = 0;
+
+        // Revokes tokens, basically logs out forcefully
+        $user->tokens()->delete();
+
+        return response()->json([
+            'message' => 'Account deleted successfully.'
+        ]);
+    }
+
+}
