@@ -15,19 +15,17 @@ export const useUserStore = defineStore('user', () => {
 
     async function login(credentials) {
         try {
-
-        // POST to API
-        const response = await axios.post(`http://127.0.0.1:${PORT}/api/auth/login`, credentials)
-        
-        token.value = response.data.token
-        user.value = response.data.user
-        
-        //Saves the token and uses it
-        localStorage.setItem('token', token.value)
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + token.value
-        
-        return true
-
+            // POST to API
+            const response = await axios.post(`http://127.0.0.1:${PORT}/api/auth/login`, credentials)
+            
+            token.value = response.data.token
+            user.value = response.data.user
+            
+            //Saves the token and uses it
+            localStorage.setItem('token', token.value)
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + token.value
+            
+            return true
         } catch (error) {
             console.error(error)
         throw error
@@ -47,5 +45,62 @@ export const useUserStore = defineStore('user', () => {
       delete axios.defaults.headers.common['Authorization']
     }
   }
-    return { user, token, isAuthenticated, login, logout }
+
+    // Action to register a new user
+    async function register(formData) {
+        try {
+            //POST TO API
+            const response = await axios.post('/api/auth/register', formData)
+            
+            // Update state with new token and user data
+            token.value = response.data.token
+            user.value = response.data.user
+            
+            // Persist token and set headers
+            localStorage.setItem('token', token.value)
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + token.value
+            
+            return true
+        } catch (error) 
+        {
+            throw error
+        }
+    }
+
+    async function restoreToken() {
+        //If theres no token, do nuthing
+        if (!token.value) return 
+
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + token.value
+
+        // GETS the data from the API again
+        try {
+        const response = await axios.get('/api/users/me')
+        user.value = response.data
+        return true
+        } catch (error) {
+        
+        // If the token expired, returns error
+        console.error('Invalid token: ', error)
+        clearUser() 
+        return false
+        }
+
+    function clearUser() {
+      token.value = null
+      user.value = null
+      localStorage.removeItem('token')
+      delete axios.defaults.headers.common['Authorization']
+    }
+  }
+
+    return { 
+        user, 
+        token, 
+        isAuthenticated, 
+        login, 
+        logout, 
+        register,
+        restoreToken
+    }
 })

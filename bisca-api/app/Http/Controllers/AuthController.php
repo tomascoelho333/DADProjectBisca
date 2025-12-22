@@ -20,7 +20,7 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:3', // Minimum 3 chars as per requisite sheet
+            'password' => 'required|string|min:3|confirmed', // Minimum 3 chars as per requisite sheet
             'nickname' => 'required|string|max:20|unique:users',
         ]);
 
