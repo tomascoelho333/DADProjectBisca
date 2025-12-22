@@ -21,7 +21,6 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        // 1. Validação
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             // Email Should be unique but not counting with the current email
@@ -40,7 +39,7 @@ class UserController extends Controller
             // Password is not obligatory
             'password' => 'sometimes|string|min:3|confirmed',
             // Photo is not obligatory
-            'photo_avatar' => 'nullable|image|max:2048', // Max 2MB
+            'photo_avatar_filename' => 'nullable|image|max:2048', // Max 2MB
         ]);
 
         $user->name = $validated['name'];
@@ -52,13 +51,13 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
         }
 
-        if ($request->hasFile('photo_avatar')) {
+        if ($request->hasFile('photo_avatar_filename')) {
             if ($user->photo_avatar_filename && Storage::disk('public')->exists('photos/' . $user->photo_avatar_filename)) {
                 Storage::disk('public')->delete('photos/' . $user->photo_avatar_filename);
             }
 
             //'storage/app/public/photos'
-            $path = $request->file('photo_avatar')->store('photos', 'public');
+            $path = $request->file('photo_avatar_filename')->store('photos', 'public');
 
             // Only write the filename on the db
             $user->photo_avatar_filename = basename($path);

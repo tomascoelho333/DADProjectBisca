@@ -30,9 +30,9 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'nickname' => $validated['nickname'],
-            'type' => 'P', // 'P' for player by default
-            'coins_balance' => 10, //10 coin register bonus
             'blocked' => false,
+            'coins_balance' => 10,
+            'type' => 'P', // Default being (P)layer, A for (A)dmin
         ]);
 
         // Bonus transaction Register
