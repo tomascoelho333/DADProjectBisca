@@ -32,7 +32,8 @@ Route::prefix('users')->group(function () {
     //Protected Routes
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('me', [UserController::class, 'show']);
-        Route::post('me', [UserController::class, 'update']);
+        // Accepts both put and post, makes so photo uploads work correctly
+        Route::match(['put', 'post'], 'me', [UserController::class, 'update']);
         // User Deletion
         Route::delete('me', [UserController::class, 'destroy']);
     });

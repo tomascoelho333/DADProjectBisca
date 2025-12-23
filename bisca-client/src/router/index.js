@@ -40,6 +40,13 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: RegisterView
+    },
+    //User profile
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('../views/ProfileView.vue'),
+      meta: { requiresAuth: true }
     }
   ],
 })

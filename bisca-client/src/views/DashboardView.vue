@@ -107,9 +107,13 @@ const handleDeleteAccount = async () => {
         </CardHeader>
         <CardContent>
           <div class="grid gap-2">
-             <Button variant="secondary" class="w-full justify-start">
-                <UserIcon class="mr-2 h-4 w-4" /> Edit Profile
-             </Button>
+             <Button 
+              variant="secondary" 
+              class="w-full justify-start" 
+              @click="router.push('/profile')"
+            >
+              <UserIcon class="mr-2 h-4 w-4" /> Edit Profile
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -148,62 +152,6 @@ const handleDeleteAccount = async () => {
             </div>
           </div>
 
-        </CardContent>
-      </Card>
-
-      <Card class="md:col-span-2 border-red-200">
-        <CardHeader>
-          <CardTitle class="text-red-600">Danger Zone</CardTitle>
-          <CardDescription>Destructive and irreversible actions.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div class="flex items-center justify-between">
-            <p class="text-sm text-slate-600">
-              Deleting your account will remove all coins and history. 
-            </p>
-            
-            <Dialog v-model:open="isDeleteDialogOpen">
-              <DialogTrigger as-child>
-                <Button variant="destructive">
-                  <Trash2 class="w-4 h-4 mr-2" />
-                  Delete Account
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Are you absolutely sure?</DialogTitle>
-                  <DialogDescription>
-                    This action cannot be undone. To confirm, please enter your current password.
-                  </DialogDescription>
-                </DialogHeader>
-                
-                <div class="grid gap-4 py-4">
-                  <div class="grid gap-2">
-                    <Label for="password">Confirmation Password</Label>
-                    <Input 
-                      id="password" 
-                      type="password" 
-                      v-model="deletePassword"
-                      placeholder="Your current password" 
-                    />
-                  </div>
-                  <p v-if="deleteError" class="text-sm text-red-600">{{ deleteError }}</p>
-                </div>
-
-                <DialogFooter>
-                  <Button variant="outline" @click="isDeleteDialogOpen = false">Cancel</Button>
-                  <Button 
-                    variant="destructive" 
-                    @click="handleDeleteAccount"
-                    :disabled="!deletePassword || isDeleting"
-                  >
-                    {{ isDeleting ? 'Deleting...' : 'Confirm Deletion' }}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-
-          </div>
         </CardContent>
       </Card>
 

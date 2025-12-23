@@ -29,6 +29,7 @@ class User extends Authenticatable
         'type',
         'blocked',
         'nickname',
+        'photo_avatar_filename',
     ];
 
     /**

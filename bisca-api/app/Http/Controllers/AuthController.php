@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CoinTransaction;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Http\Request;
@@ -22,6 +23,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:3|confirmed', // Minimum 3 chars as per requisite sheet
             'nickname' => 'required|string|max:20|unique:users',
+            'photo_avatar_filename' => 'nullable|image|max:2048',
         ]);
 
         // User register
@@ -30,10 +32,23 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'nickname' => $validated['nickname'],
+            'photo_avatar_filename' => $validated['photo_avatar_filename'],
             'blocked' => false,
             'coins_balance' => 10,
             'type' => 'P', // Default being (P)layer, A for (A)dmin
         ]);
+
+        if ($request->hasFile('photo_avatar_filename')) {
+            if ($user->photo_avatar_filename && Storage::disk('public')->exists('photos/' . $user->photo_avatar_filename)) {
+                Storage::disk('public')->delete('photos/' . $user->photo_avatar_filename);
+            }
+
+            //'storage/app/public/photos'
+            $path = $request->file('photo_avatar_filename')->store('photos', 'public');
+
+            // Only write the filename on the db
+            $user->photo_avatar_filename = basename($path);
+        }
 
         // Bonus transaction Register
         CoinTransaction::create([

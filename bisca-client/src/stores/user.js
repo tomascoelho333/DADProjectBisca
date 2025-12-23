@@ -94,6 +94,18 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  async function updateProfile(formData) {
+      try {
+        const response = await axios.post('/api/users/me', formData)
+        
+        // Update the local user state with the fresh data from the server
+        user.value = response.data.user
+        return true
+      } catch (error) {
+        throw error
+      }
+    }
+
     return { 
         user, 
         token, 
@@ -101,6 +113,7 @@ export const useUserStore = defineStore('user', () => {
         login, 
         logout, 
         register,
-        restoreToken
+        restoreToken,
+        updateProfile
     }
 })

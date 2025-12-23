@@ -44,7 +44,6 @@ const handleRegister = async () => {
   isLoading.value = true
 
   try {
-    // To upload files (images), we must use FormData instead of a simple JSON object
     const formData = new FormData()
     formData.append('name', name.value)
     formData.append('nickname', nickname.value)
@@ -54,7 +53,7 @@ const handleRegister = async () => {
     
     // Only append the file if the user selected one
     if (photoFile.value) {
-      formData.append('photo_avatar', photoFile.value)
+      formData.append('photo_avatar_filename', photoFile.value)
     }
 
     // Call the register action in the store
