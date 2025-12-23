@@ -20,7 +20,6 @@ class CoinTransaction extends Model
         //Game related:
         'game_id',
         'match_id',
-
     ];
 
     //Makes sure custom is sent as an array of data
