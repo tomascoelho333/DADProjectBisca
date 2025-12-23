@@ -26,29 +26,26 @@ class AuthController extends Controller
             'photo_avatar_filename' => 'nullable|image|max:2048',
         ]);
 
+        $photoFilename = null;
+
+        if ($request->hasFile('photo_avatar_filename')) {
+            // Stores it on the public path
+            $path = $request->file('photo_avatar_filename')->store('photos', 'public');
+            // Gets only the filename
+            $photoFilename = basename($path);
+        }
+
         // User register
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'nickname' => $validated['nickname'],
-            'photo_avatar_filename' => $validated['photo_avatar_filename'],
+            'photo_avatar_filename' => $photoFilename,
             'blocked' => false,
             'coins_balance' => 10,
             'type' => 'P', // Default being (P)layer, A for (A)dmin
         ]);
-
-        if ($request->hasFile('photo_avatar_filename')) {
-            if ($user->photo_avatar_filename && Storage::disk('public')->exists('photos/' . $user->photo_avatar_filename)) {
-                Storage::disk('public')->delete('photos/' . $user->photo_avatar_filename);
-            }
-
-            //'storage/app/public/photos'
-            $path = $request->file('photo_avatar_filename')->store('photos', 'public');
-
-            // Only write the filename on the db
-            $user->photo_avatar_filename = basename($path);
-        }
 
         // Bonus transaction Register
         CoinTransaction::create([
