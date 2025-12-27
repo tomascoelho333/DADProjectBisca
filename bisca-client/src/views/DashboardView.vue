@@ -11,7 +11,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { LogOut, Trash2, Coins, User as UserIcon, Trophy } from 'lucide-vue-next'
+import { LogOut, Trash2, Coins, User as UserIcon, Trophy, BarChart3 } from 'lucide-vue-next'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -106,13 +106,20 @@ const handleDeleteAccount = async () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div class="grid gap-2">
+          <div class="grid gap-1">
              <Button 
               variant="secondary" 
               class="w-full justify-start" 
               @click="router.push('/profile')"
             >
               <UserIcon class="mr-2 h-4 w-4" /> Edit Profile
+            </Button>
+            <Button 
+              variant="secondary" 
+              class="w-full justify-start" 
+              @click="router.push('/stats')"
+            >
+              <BarChart3 class="mr-2 h-4 w-4" /> Statistics
             </Button>
           </div>
         </CardContent>
