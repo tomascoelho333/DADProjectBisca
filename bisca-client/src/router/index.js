@@ -12,7 +12,7 @@ const router = createRouter({
       name: 'home',
       // Default value is commented:
       //component: HomeView,
-      redirect: '/login',
+      redirect: '/dashboard',
     },
     {
       path: '/about',
@@ -27,7 +27,7 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('../views/DashboardView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: false }
     },
     //Login
     {
@@ -53,8 +53,22 @@ const router = createRouter({
       path: '/stats',
       name: 'statistics',
       component: () => import('../views/StatisticsView.vue'),
+      meta: { requiresAuth: false }
+    },
+    // Leaderboard
+    {
+      path: '/leaderboard',
+      name: 'leaderboard',
+      component: () => import('../views/LeaderboardView.vue'),
+      meta: { requiresAuth: false }
+    },
+    {
+      path: '/history',
+      name: 'history',
+      component: () => import('../views/HistoryView.vue'),
       meta: { requiresAuth: true }
-    }
+    },
+    
   ],
 })
 

@@ -41,7 +41,7 @@ const adminStats = ref(null)
 const pieChartData = ref({ labels: [], datasets: [] }) // Game Types
 const barChartData = ref({ labels: [], datasets: [] }) // Game Status
 const paymentChartData = ref({ labels: [], datasets: [] }) // Payment Methods
-const lineChartData = ref({ labels: [], datasets: [] })
+const lineChartData = ref({ labels: [], datasets: [] }) // Revenue History
 
 const chartOptions = {
   responsive: true,

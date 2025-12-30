@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -13,7 +14,11 @@ class UserController extends Controller
     // Show own profile
     public function show(Request $request)
     {
-        return $request->user();
+        $userId = $request->user()->id;
+        return Cache::remember("user_profile_{$userId}", 60, function () use ($userId) {
+            // Gets the user if not in cache
+            return User::find($userId);
+        });
     }
 
     // Update own profile
@@ -52,18 +57,20 @@ class UserController extends Controller
         }
 
         if ($request->hasFile('photo_avatar_filename')) {
-            if ($user->photo_avatar_filename && Storage::disk('public')->exists('photos/' . $user->photo_avatar_filename)) {
-                Storage::disk('public')->delete('photos/' . $user->photo_avatar_filename);
+            if ($user->photo_avatar_filename && Storage::disk('public')->exists('photos_avatars/' . $user->photo_avatar_filename)) {
+                Storage::disk('public')->delete('photos_avatars/' . $user->photo_avatar_filename);
             }
 
-            //'storage/app/public/photos'
-            $path = $request->file('photo_avatar_filename')->store('photos', 'public');
+            //'storage/app/public/photos_avatars'
+            $path = $request->file('photo_avatar_filename')->store('photos_avatars', 'public');
 
             // Only write the filename on the db
             $user->photo_avatar_filename = basename($path);
         }
 
         $user->save();
+
+        Cache::forget("user_profile_{$user->id}");
 
         return response()->json([
             'message' => 'Profile updated successfully.',
