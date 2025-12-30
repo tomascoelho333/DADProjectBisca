@@ -43,7 +43,7 @@ const handleLogout = async () => {
          </Button>
       </div>
       <div v-else class="flex gap-2">
-         <Button variant="ghost" @click="router.push('/login')">
+         <Button variant="outline" @click="router.push('/login')">
            <LogIn class="w-4 h-4 mr-2" /> Sign In
          </Button>
       </div>
