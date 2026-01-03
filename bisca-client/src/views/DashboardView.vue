@@ -106,6 +106,11 @@ const handleLogout = async () => {
                 <p class="text-3xl font-bold text-slate-800">{{ userStore.user.coins_balance ?? 0 }}</p>
               </div>
             </div>
+            <div class="items-right ml-auto">
+                <Button variant="outline" @click="router.push('/funds/add')">
+                  Add Balance
+                </Button>
+            </div>
           </div>
           </CardContent>
       </Card>
