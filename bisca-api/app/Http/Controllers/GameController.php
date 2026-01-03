@@ -72,14 +72,14 @@ class GameController extends Controller
                 // Single player against bot - handled in memory, not saved to database
                 \Log::info('Creating single player game', ['user_id' => $user->id]);
                 $result = SinglePlayerGameService::createGame($request->type, $user->id);
-                
+
                 // Check if game creation failed (e.g., insufficient coins)
                 if (isset($result['success']) && !$result['success']) {
                     return response()->json([
                         'message' => $result['message']
                     ], 400);
                 }
-                
+
                 \Log::info('Single player game created successfully', ['game_id' => $result['id'] ?? 'unknown']);
                 return response()->json($result, 201);
             }
@@ -285,7 +285,7 @@ class GameController extends Controller
         // Clear any potential query cache and refresh from database to ensure we have the latest data
         DB::connection()->flushQueryLog();
         $game->refresh();
-        
+
         \Log::info('SHOW: Game fetched for show', [
             'game_id' => $game->id,
             'requested_id' => $gameId,
@@ -335,7 +335,7 @@ class GameController extends Controller
             if (isset($customState['current_trick']) && count($customState['current_trick']) === 2) {
                 $lastMoveTime = isset($customState['last_move_at']) ? strtotime($customState['last_move_at']) : 0;
                 $currentTime = time();
-                
+
                 \Log::info('Checking for stuck trick', [
                     'game_id' => $game->id,
                     'trick_length' => count($customState['current_trick']),
@@ -345,7 +345,7 @@ class GameController extends Controller
                     'time_diff' => $currentTime - $lastMoveTime,
                     'should_auto_resolve' => ($currentTime - $lastMoveTime) > 3
                 ]);
-                
+
                 // Auto-resolve if stuck for more than 10 seconds (backup safety net)
                 if ($currentTime - $lastMoveTime > 10) {
                     \Log::info('Auto-resolving stuck trick (backup safety)', [
@@ -354,14 +354,14 @@ class GameController extends Controller
                         'current_trick' => $customState['current_trick'],
                         'current_player_before' => $customState['current_player']
                     ]);
-                    
+
                     // Resolve the trick automatically
                     $this->resolveTrick($customState);
-                    
+
                     // Save the resolved state
                     $game->custom = json_encode($customState);
                     $game->save();
-                    
+
                     \Log::info('Stuck trick auto-resolved (backup)', [
                         'new_trick_length' => count($customState['current_trick']),
                         'new_current_player' => $customState['current_player'],
@@ -461,19 +461,19 @@ class GameController extends Controller
                     'user_id' => $user->id,
                     'current_status' => $game->status
                 ]);
-                
+
                 $result = $this->handleResignation($game, $user);
-                
+
                 \Log::info('RESIGN: Committing transaction after resignation', [
                     'game_id' => $game->id
                 ]);
-                
+
                 DB::commit();
-                
+
                 \Log::info('RESIGN: Transaction committed, returning response', [
                     'game_id' => $game->id
                 ]);
-                
+
                 return $result;
             }
 
@@ -496,7 +496,7 @@ class GameController extends Controller
             }
 
             $gameState = $result['gameState'];
-            
+
             \Log::info('Game state after processMove', [
                 'current_player' => $gameState['current_player'] ?? 'not_set',
                 'status' => $gameState['status'] ?? 'not_set',
@@ -506,7 +506,7 @@ class GameController extends Controller
                 'current_trick_count' => count($gameState['current_trick'] ?? []),
                 'is_bot_game' => $gameState['is_bot_game'] ?? 'not_set'
             ]);
-            
+
             $game->custom = json_encode($gameState);
 
             // Check if game is finished
@@ -523,15 +523,15 @@ class GameController extends Controller
             ]);
 
             DB::commit();
-            
+
             // Return the merged game state like the show method does
             $game->load(['player1', 'player2', 'winner']);
             $response = $game->toArray();
-            
+
             // Merge custom game state fields for frontend compatibility
             $customState = json_decode($game->custom, true) ?? [];
             $response = array_merge($response, $customState);
-            
+
             \Log::info('Returning merged game state', [
                 'has_trump_card' => isset($response['trump_card']),
                 'has_current_player' => isset($response['current_player']),
@@ -539,7 +539,7 @@ class GameController extends Controller
                 'player1_hand_count' => count($response['player1_hand'] ?? []),
                 'player2_hand_count' => count($response['player2_hand'] ?? [])
             ]);
-            
+
             return response()->json($response);
 
         } catch (\Exception $e) {
@@ -548,7 +548,7 @@ class GameController extends Controller
                 'error' => $e->getMessage(),
                 'user_id' => $user->id ?? 'unknown'
             ]);
-            
+
             DB::rollback();
             return response()->json(['message' => 'Failed to make move'], 500);
         }
@@ -743,7 +743,7 @@ class GameController extends Controller
                 'switching_to' => $opponentId,
                 'is_bot_game' => $gameState['is_bot_game'] ?? false
             ]);
-            
+
             $gameState['current_player'] = $opponentId;
 
             // If it's a bot game and now it's bot's turn, make bot move
@@ -814,7 +814,7 @@ class GameController extends Controller
                     $gameState['player2_hand'][] = array_shift($gameState['deck']);
                 }
             } else {
-                // Player 2 wins: player2 draws first, then player1  
+                // Player 2 wins: player2 draws first, then player1
                 if (!empty($gameState['deck'])) {
                     $gameState['player2_hand'][] = array_shift($gameState['deck']);
                 }
@@ -830,7 +830,7 @@ class GameController extends Controller
             $currentPlayer = $gameState['current_player'];
             $player1HasCards = !empty($gameState['player1_hand']);
             $player2HasCards = !empty($gameState['player2_hand']);
-            
+
             if ($currentPlayer === $gameState['player2_id'] && !$player2HasCards && $player1HasCards) {
                 \Log::info('Player 2 has no cards but player 1 does, switching current player to player 1');
                 $gameState['current_player'] = $gameState['player1_id'];
@@ -951,7 +951,7 @@ class GameController extends Controller
         // Update the custom game state to reflect the end
         $gameState['status'] = 'Ended';
         $gameState['ended_at'] = now()->toISOString();
-        $gameState['winner'] = $game->player1_user_id === $user->id ? 
+        $gameState['winner'] = $game->player1_user_id === $user->id ?
                                $game->player2_user_id : $game->player1_user_id;
         $gameState['resigned_by'] = $user->id;
 
@@ -982,7 +982,7 @@ class GameController extends Controller
         if ($opponentId) { // Not a bot game
             $winner = User::find($opponentId);
             $this->awardGamePayout($winner, $payout, $game->id, "Multiplayer resignation win");
-            
+
             \Log::info('RESIGN: Payout awarded to winner', [
                 'game_id' => $game->id,
                 'winner_id' => $opponentId,
@@ -1038,7 +1038,7 @@ class GameController extends Controller
                 $player2 = User::find($game->player2_user_id);
                 $this->awardGamePayout($player1, $gameFee, $game->id, 'Draw refund');
                 $this->awardGamePayout($player2, $gameFee, $game->id, 'Draw refund');
-                
+
                 \Log::info('PAYOUT: Draw - refunding stakes to both players', [
                     'game_id' => $game->id,
                     'game_fee_per_player' => $gameFee,
@@ -1049,10 +1049,10 @@ class GameController extends Controller
                 // Winner takes both stakes (simple winner-takes-all system)
                 $totalPayout = $gameFee * 2; // Winner gets both players' stakes
                 $winner = User::find($game->winner_user_id);
-                
+
                 $winnerScore = $game->winner_user_id === $game->player1_user_id ? $player1Score : $player2Score;
                 $this->awardGamePayout($winner, $totalPayout, $game->id, "Multiplayer win ({$winnerScore} points)");
-                
+
                 \Log::info('PAYOUT: Winner takes all stakes', [
                     'game_id' => $game->id,
                     'winner_id' => $game->winner_user_id,
@@ -1268,18 +1268,18 @@ class GameController extends Controller
                     'trick_length' => count($gameState['current_trick']),
                     'current_trick' => $gameState['current_trick']
                 ]);
-                
+
                 // If trick is already resolved (length = 0), return current state instead of error
                 if (count($gameState['current_trick']) === 0) {
                     \Log::info('Trick already resolved, returning current state');
-                    
+
                     // Return merged game state like a normal response
                     $game = $game->load(['player1', 'player2', 'winner']);
                     $response = $game->toArray();
                     $response = array_merge($response, $gameState);
                     return response()->json($response);
                 }
-                
+
                 return response()->json(['message' => 'Trick is not complete'], 400);
             }
 
@@ -1375,10 +1375,10 @@ class GameController extends Controller
             $game->save();
 
             DB::commit();
-            
+
             // Force connection flush to ensure data is written
             DB::connection()->getPdo()->exec('COMMIT');
-            
+
             \Log::info('Transaction committed successfully');
 
             // Return merged game state
@@ -1435,7 +1435,7 @@ class GameController extends Controller
         ]);
 
         $user = User::find($request->user_id);
-        
+
         if ($user->type !== 'P') {
             return response()->json(['message' => 'Cannot give coins to administrators'], 400);
         }

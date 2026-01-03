@@ -333,7 +333,7 @@ const opponentPoints = computed(() => {
 
 const isPlayerTurn = computed(() => {
   if (!gameState.value) return false
-  
+
   // Don't allow moves during trick resolution or when showing trick results
   if (showTrickResult.value || isResolvingTrick.value) return false
 
@@ -425,9 +425,9 @@ const getOpponentDisplayName = () => {
   if (props.gameMode === 'single') {
     return 'Bot'
   }
-  
+
   if (!gameState.value) return 'Opponent'
-  
+
   // Find the opponent (the player who is not the current user)
   const opponentId = gameState.value.player1_id === userId.value ? gameState.value.player2_id : gameState.value.player1_id
   return getPlayerDisplayName(opponentId)
@@ -436,17 +436,17 @@ const getOpponentDisplayName = () => {
 // Helper function to get coin flip result text
 const getCoinFlipResultText = () => {
   if (!gameState.value || !coinFlipResult.value) return ''
-  
+
   // In the backend, coin flip result determines current_player directly
   const currentPlayerId = gameState.value.current_player
   const currentPlayerName = getPlayerDisplayName(currentPlayerId)
-  
+
   console.log('🪙 Coin flip result text:', {
     coinFlipResult: coinFlipResult.value,
     currentPlayer: currentPlayerId,
     currentPlayerName: currentPlayerName
   })
-  
+
   return `${currentPlayerName} ${currentPlayerName === 'You' ? 'go' : 'goes'} first!`
 }
 
@@ -689,7 +689,7 @@ const playCard = async (card) => {
       source: 'PLAY_CARD_UPDATE'
     })
     gameState.value = response.data
-    
+
     console.log('After playing card, game state:', {
       current_trick_length: response.data.current_trick?.length || 0,
       current_player: response.data.current_player,
@@ -720,13 +720,13 @@ const playCard = async (card) => {
     console.error('Error playing card:', error)
     console.error('Game ID:', currentGameId.value)
     console.error('Error response:', error.response?.data)
-    
+
     // If we get "Game is not active" error, immediately check game state
     if (error.response?.data?.message === 'Game is not active') {
       console.log('🔍 Game not active error - checking current game state immediately')
       await loadGameState()
     }
-    
+
     alert('Error playing card: ' + (error.response?.data?.message || 'Unknown error'))
   }
 }
@@ -770,13 +770,13 @@ const resignGame = async () => {
         token: userStore.token ? 'present' : 'missing',
         userId: userStore.user?.id
       })
-      
+
       response = await axios.post(`/api/games/${currentGameId.value}/move`, {
         action: 'resign'
       }, {
         headers: { Authorization: `Bearer ${userStore.token}` }
       })
-      
+
       console.log('🏳️ Multiplayer resignation response received:', {
         status: response.data.status,
         winner_user_id: response.data.winner_user_id,
@@ -787,7 +787,7 @@ const resignGame = async () => {
 
     console.log('🏳️ Resignation successful - updating game state:', response.data)
     gameState.value = response.data
-    
+
     // Force stop polling since game is now ended
     if (response.data.status === 'Ended' || (response.data.custom && response.data.custom.status === 'Ended')) {
       console.log('🏳️ Game ended after resignation, stopping polling')
@@ -808,7 +808,7 @@ const loadGameState = async () => {
     console.log('Skipping multiplayer poll during trick result display/resolution')
     return
   }
-  
+
   // Check cooldown period after trick resolution to prevent race conditions
   const now = Date.now()
   if (lastTrickResolutionTime.value > 0 && (now - lastTrickResolutionTime.value) < 5000) {
@@ -837,7 +837,7 @@ const loadGameState = async () => {
       winner_user_id: response.data.winner_user_id,
       loser_user_id: response.data.loser_user_id
     })
-    
+
     console.log('Polled game state received:', {
       current_trick_length: response.data.current_trick?.length || 0,
       player1_points: response.data.player1_points,
@@ -851,26 +851,26 @@ const loadGameState = async () => {
     })
 
     // Check if game just started (Pending -> Playing) OR if game is playing and we haven't shown coin flip yet
-    if ((oldStatus === 'Pending' && newStatus === 'playing') || 
+    if ((oldStatus === 'Pending' && newStatus === 'playing') ||
         (newStatus === 'playing' && !hasShownCoinFlip.value)) {
       console.log('🎉 Game started! Showing coin flip animation.')
-      
+
       // Mark that we've shown the coin flip to avoid showing it multiple times
       hasShownCoinFlip.value = true
-      
+
       // Trigger coin flip animation when game starts
       showCoinFlip.value = true
       isCoinFlipping.value = true
-      
+
       // Get coin flip result from game state
       const flipResult = response.data.coin_flip_result || 'heads'
       console.log('🪙 Coin flip result from backend:', flipResult)
-      
+
       setTimeout(() => {
         isCoinFlipping.value = false
         coinFlipResult.value = flipResult
         console.log('🪙 Coin flip animation completed, showing result:', flipResult)
-        
+
         setTimeout(() => {
           showCoinFlip.value = false
           console.log('Game is now active with both players!')
@@ -889,13 +889,13 @@ const loadGameState = async () => {
         current_player: response.data.current_player,
         source: 'POLLING_UPDATE'
       })
-      
+
       // Check if hand sizes are decreasing unexpectedly
       const beforeP1 = gameState.value?.player1_hand?.length || 0
       const afterP1 = response.data.player1_hand?.length || 0
       const beforeP2 = gameState.value?.player2_hand?.length || 0
       const afterP2 = response.data.player2_hand?.length || 0
-      
+
       if (afterP1 < beforeP1 || afterP2 < beforeP2) {
         console.error('🚨 CARDS BEING REMOVED BY POLLING!', {
           beforeP1, afterP1, beforeP2, afterP2,
@@ -903,9 +903,9 @@ const loadGameState = async () => {
           responseData: response.data
         })
       }
-      
+
       gameState.value = response.data
-      
+
       // Add debug logging for game end detection
       if (response.data.status === 'Ended') {
         console.log('🎮 GAME ENDED DETECTED - STOPPING POLLING:', {
@@ -918,7 +918,7 @@ const loadGameState = async () => {
           deck_size: response.data.deck?.length || 0,
           userId: userId.value
         })
-        
+
         // Stop polling when game ends
         if (pollInterval.value) {
           clearInterval(pollInterval.value)
@@ -1093,7 +1093,7 @@ onMounted(() => {
       // Stop polling if game is over
       const activeStatuses = ['Pending', 'playing', 'Playing']
       const currentStatus = gameState.value?.status
-      
+
       if (currentStatus && !activeStatuses.includes(currentStatus)) {
         console.log('🛑 Game ended in polling check, stopping polling.', {
           status: currentStatus,
@@ -1106,7 +1106,7 @@ onMounted(() => {
         }
         return
       }
-      
+
       // Additional explicit check for ended status
       if (currentStatus === 'Ended' || currentStatus === 'ended') {
         console.log('🛑 Game ENDED status detected in polling, stopping polling. Status:', currentStatus)
@@ -1116,17 +1116,17 @@ onMounted(() => {
         }
         return
       }
-      
+
       if (props.gameMode === 'multiplayer') {
         // Poll if:
         // 1. Game is pending (waiting for player2 to join)
         // 2. Game is playing and waiting for other player's move (but not during trick resolution)
-        const shouldPoll = gameState.value?.status === 'Pending' || 
-                          (gameState.value?.status === 'playing' && 
-                           !showTrickResult.value && 
-                           !isResolvingTrick.value && 
+        const shouldPoll = gameState.value?.status === 'Pending' ||
+                          (gameState.value?.status === 'playing' &&
+                           !showTrickResult.value &&
+                           !isResolvingTrick.value &&
                            gameState.value?.current_player !== userId.value)
-        
+
         if (shouldPoll) {
           console.log('Polling multiplayer game state', {
             status: gameState.value?.status,
@@ -1178,16 +1178,16 @@ watch(() => gameState.value?.current_trick, (newTrick, oldTrick) => {
   if (newTrick.length === 2 && lastTrickLength < 2 && !showTrickResult.value && !isResolvingTrick.value) {
     // Create a unique identifier for this trick combination
     const trickId = newTrick.map(c => c.id).sort().join('-')
-    
+
     // Check if we've already processed this exact trick combination
     if (processedTrickIds.has(trickId)) {
       console.log('Trick already processed, skipping:', trickId)
       lastTrickLength = 2 // Update length to prevent further processing
       return
     }
-    
+
     console.log('🎉 TRICK COMPLETED: Starting trick winner animation sequence')
-    
+
     // Mark this trick as processed
     processedTrickIds.add(trickId)
 
@@ -1211,7 +1211,7 @@ watch(() => gameState.value?.current_trick, (newTrick, oldTrick) => {
     // Ensure the animation is shown for at least 4 seconds before clearing
     const animationDuration = 4000
     const animationStartTime = Date.now()
-    
+
     setTimeout(() => {
       const actualDuration = Date.now() - animationStartTime
       console.log('🎉 TRICK WINNER ANIMATION: Clearing result display after', actualDuration, 'ms')
@@ -1225,7 +1225,7 @@ watch(() => gameState.value?.current_trick, (newTrick, oldTrick) => {
       // Try manual resolution but don't block if it fails - auto-resolve will handle it
       try {
         console.log('🎯 Attempting manual resolve_trick (with auto-resolve backup)')
-        
+
         if (isResolvingTrick.value) {
           console.log('Trick resolution already in progress, skipping')
           return
@@ -1247,7 +1247,7 @@ watch(() => gameState.value?.current_trick, (newTrick, oldTrick) => {
         }
 
         console.log('Manual resolve_trick successful:', response.data.player1_points, response.data.player2_points)
-        
+
         // Set cooldown to prevent polling conflicts
         lastTrickResolutionTime.value = Date.now()
 
@@ -1280,27 +1280,27 @@ watch(() => gameState.value?.current_trick, (newTrick, oldTrick) => {
   // Check if trick was just cleared by backend
   if (oldTrick && oldTrick.length > 0 && newTrick.length === 0) {
     console.log('Backend cleared trick - checking if we missed the completed trick animation')
-    
+
     // If the trick went from 1 to 0, we missed the opponent's card and the trick completion
     // We need to show the trick result based on the score change
     if (oldTrick.length === 1 && !showTrickResult.value && !isResolvingTrick.value) {
       console.log('🎉 MISSED TRICK COMPLETION: Trick went from 1 to 0, showing result retroactively')
-      
+
       // Check for score changes to determine the winner
       const currentP1Score = gameState.value?.player1_points || 0
       const currentP2Score = gameState.value?.player2_points || 0
       const previousP1Score = lastPlayerPoints || 0
       const previousP2Score = lastOpponentPoints || 0
-      
+
       console.log('Score analysis:', {
         currentP1Score,
-        currentP2Score, 
+        currentP2Score,
         previousP1Score,
         previousP2Score,
         p1ScoreIncrease: currentP1Score - previousP1Score,
         p2ScoreIncrease: currentP2Score - previousP2Score
       })
-      
+
       // Determine winner based on who got points
       let retroactiveWinner = null
       if (currentP1Score > previousP1Score && currentP2Score === previousP2Score) {
@@ -1309,16 +1309,16 @@ watch(() => gameState.value?.current_trick, (newTrick, oldTrick) => {
         retroactiveWinner = gameState.value.player2_id
       } else if (currentP1Score > previousP1Score && currentP2Score > previousP2Score) {
         // Both got points, determine who got more (shouldn't happen in normal bisca)
-        retroactiveWinner = currentP1Score - previousP1Score >= currentP2Score - previousP2Score ? 
+        retroactiveWinner = currentP1Score - previousP1Score >= currentP2Score - previousP2Score ?
                            gameState.value.player1_id : gameState.value.player2_id
       }
-      
+
       if (retroactiveWinner) {
         console.log('🎉 RETROACTIVE TRICK WINNER:', getPlayerDisplayName(retroactiveWinner))
         trickWinner.value = retroactiveWinner
         showTrickResult.value = true
         lastCompletedTrick.value = [...oldTrick] // Use the partial trick we saw
-        
+
         // Show the result for a shorter time since it's retroactive
         setTimeout(() => {
           console.log('🎉 RETROACTIVE TRICK ANIMATION: Clearing result display')
@@ -1328,7 +1328,7 @@ watch(() => gameState.value?.current_trick, (newTrick, oldTrick) => {
         }, 2500)
       }
     }
-    
+
     lastTrickLength = 0
     // Don't clear processedTrickIds here - we want to keep them to prevent re-processing the same trick
     return
@@ -1382,7 +1382,7 @@ watch(() => [gameState.value?.player1_points, gameState.value?.player2_points], 
       oldP1Points: oldP1Points,
       oldP2Points: oldP2Points
     })
-    
+
     // Update the tracked scores
     lastPlayerPoints = newP1Points || 0
     lastOpponentPoints = newP2Points || 0
@@ -1404,7 +1404,7 @@ watch(() => gameState.value?.current_player, (newPlayer, oldPlayer) => {
   if (props.gameMode === 'single' && gameState.value?.status === 'playing') {
     // Bot should play when: it's bot's turn, trick is not complete, not showing results, and no move in progress
     const trickLength = gameState.value?.current_trick?.length || 0
-    
+
     if (newPlayer === 'bot') {
       console.log('🤖 Bot detected as current player. Checking conditions:', {
         trickLength: trickLength,
@@ -1413,19 +1413,19 @@ watch(() => gameState.value?.current_player, (newPlayer, oldPlayer) => {
         isManualBotTrigger: isManualBotTrigger.value,
         willTrigger: trickLength < 2 && !showTrickResult.value && !isBotMoveInProgress.value && !isManualBotTrigger.value
       })
-      
+
       // If trick result is showing but bot won, queue the bot move for after the result is cleared
       if (showTrickResult.value) {
         console.log('🤖 Bot turn detected but trick result is showing. Queueing bot move for after result clears.')
         // Queue the bot move to trigger after trick result is cleared
         setTimeout(() => {
-          if (gameState.value?.current_player === 'bot' && 
-              !showTrickResult.value && 
+          if (gameState.value?.current_player === 'bot' &&
+              !showTrickResult.value &&
               !isBotMoveInProgress.value &&
               (gameState.value?.current_trick?.length || 0) < 2) {
             console.log('🤖 Trick result cleared, now triggering queued bot move')
             isBotThinking.value = true
-            
+
             const delay = Math.random() * 2000 + 2000 // 2-4 seconds
             setTimeout(async () => {
               if (isBotThinking.value &&
@@ -1445,7 +1445,7 @@ watch(() => gameState.value?.current_player, (newPlayer, oldPlayer) => {
         return
       }
     }
-    
+
     if (newPlayer === 'bot' &&
         trickLength < 2 &&
         !showTrickResult.value &&
@@ -1516,16 +1516,16 @@ watch(() => showTrickResult.value, (showing, wasShowing) => {
       gameStatus: gameState.value?.status,
       isBotMoveInProgress: isBotMoveInProgress.value
     })
-    
+
     // If bot is current player and trick is empty/incomplete, trigger bot move
-    if (props.gameMode === 'single' && 
+    if (props.gameMode === 'single' &&
         gameState.value?.status === 'playing' &&
         gameState.value?.current_player === 'bot' &&
         !isBotMoveInProgress.value &&
         (gameState.value?.current_trick?.length || 0) < 2) {
       console.log('🤖 Bot should move after trick result cleared')
       isBotThinking.value = true
-      
+
       const delay = Math.random() * 2000 + 2000 // 2-4 seconds
       setTimeout(async () => {
         if (isBotThinking.value &&
@@ -1598,7 +1598,7 @@ watch(() => gameState.value?.trick_complete, (isComplete) => {
   if (!isComplete || !gameState.value) return
 
   const trickLength = gameState.value.current_trick?.length || 0
-  
+
   console.log('🎯 Trick marked as complete by backend:', {
     trickLength: trickLength,
     currentPlayer: gameState.value.current_player,
@@ -1608,21 +1608,21 @@ watch(() => gameState.value?.trick_complete, (isComplete) => {
   // If trick is incomplete (1 card) but marked complete, auto-resolve it
   if (trickLength === 1 && !showTrickResult.value && !isResolvingTrick.value) {
     console.log('🎯 Auto-resolving incomplete trick (opponent has no cards)')
-    
+
     // The single card in the trick automatically wins
     showTrickResult.value = true
     trickWinner.value = gameState.value.current_trick[0].played_by === 'bot' ? 'bot' : gameState.value.player1_id
-    
+
     console.log('🎉 TRICK WINNER (auto-resolved):', trickWinner.value)
-    
+
     // Clear the display after 4 seconds and resolve
     setTimeout(() => {
       showTrickResult.value = false
-      
+
       setTimeout(async () => {
         try {
           console.log('🎯 Resolving auto-completed trick')
-          
+
           let response
           if (gameState.value?.is_anonymous) {
             response = await axios.post(`/api/games/anonymous/${currentGameId.value}/move`, {
@@ -1635,7 +1635,7 @@ watch(() => gameState.value?.trick_complete, (isComplete) => {
               headers: { Authorization: `Bearer ${userStore.token}` }
             })
           }
-          
+
           gameState.value = response.data
           console.log('🎯 Auto-completed trick resolved successfully')
         } catch (error) {
@@ -1688,7 +1688,7 @@ const startPlayerJoinPolling = () => {
   if (playerJoinPollInterval.value) {
     clearInterval(playerJoinPollInterval.value)
   }
-  
+
   console.log('🔄 Starting player join polling...')
   playerJoinPollInterval.value = setInterval(async () => {
     if (!currentGameId.value || !gameState.value) {
@@ -1707,7 +1707,7 @@ const startPlayerJoinPolling = () => {
     console.log('🔄 Checking if other player has joined or resigned...')
     try {
       await loadGameState()
-      
+
       // Check if game has ended (someone resigned before game started)
       if (gameState.value && gameState.value.status === 'Ended') {
         console.log('🏳️ Game ended during waiting (player resigned):', {
@@ -1716,7 +1716,7 @@ const startPlayerJoinPolling = () => {
           current_user_id: userStore.user?.id
         })
         stopPlayerJoinPolling()
-        
+
         // Check if current user was the one who resigned
         if (gameState.value.resigned_by && gameState.value.resigned_by === userStore.user?.id) {
           console.log('🏳️ Current user resigned during waiting')
@@ -1725,12 +1725,12 @@ const startPlayerJoinPolling = () => {
         }
         return
       }
-      
+
       // If status changed from Pending to something else, the other player joined
       if (gameState.value && gameState.value.status !== 'Pending') {
         console.log('🎉 Other player has joined! Status changed to:', gameState.value.status)
         stopPlayerJoinPolling()
-        
+
         // Start main polling if game is now playing
         if (gameState.value.status === 'playing' || gameState.value.status === 'Playing') {
           console.log('🔄 Game is now playing, main polling will take over')

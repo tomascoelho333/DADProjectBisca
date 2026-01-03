@@ -61,7 +61,7 @@ class SinglePlayerGameService
 
         // Singleplayer games are FREE for everyone (registered and anonymous users)
         // No coin transactions needed as per project specification
-        
+
         $gameId = Str::uuid()->toString();
 
         // For anonymous players, use 'anonymous' as the player ID
@@ -226,13 +226,13 @@ class SinglePlayerGameService
         } else {
             // Switch to bot for completing the trick
             $game['current_player'] = 'bot';
-            
+
             \Log::info('After player move - checking bot response capability', [
                 'bot_hand_size' => count($game['player2_hand']),
                 'deck_size' => count($game['deck']),
                 'current_trick_length' => count($game['current_trick'])
             ]);
-            
+
             // Special case: if bot has no cards and deck is empty, auto-complete the trick
             if (empty($game['player2_hand']) && empty($game['deck'])) {
                 \Log::info('Bot has no cards to respond to player card - auto-completing trick');
@@ -285,13 +285,13 @@ class SinglePlayerGameService
             } else {
                 // Switch to player, but check if player has cards
                 $game['current_player'] = $game['player1_id'];
-                
+
                 \Log::info('After bot move - checking player response capability', [
                     'player_hand_size' => count($game['player1_hand']),
                     'deck_size' => count($game['deck']),
                     'current_trick_length' => count($game['current_trick'])
                 ]);
-                
+
                 // Special case: if player has no cards and deck is empty, auto-complete the trick
                 if (empty($game['player1_hand']) && empty($game['deck'])) {
                     \Log::info('Player has no cards to respond to bot card - auto-completing trick');
@@ -430,7 +430,7 @@ class SinglePlayerGameService
         // Winner leads next trick
         $game['current_player'] = $winnerId;
         $game['trick_leader'] = $winnerId;
-        
+
         \Log::info('After setting next player:', [
             'current_player' => $game['current_player'],
             'trick_leader' => $game['trick_leader'],
@@ -444,13 +444,13 @@ class SinglePlayerGameService
             $currentPlayer = $game['current_player'];
             $player1HasCards = !empty($game['player1_hand']);
             $player2HasCards = !empty($game['player2_hand']);
-            
+
             \Log::info('Immediate check if trick winner can play', [
                 'current_player' => $currentPlayer,
                 'player1_has_cards' => $player1HasCards,
                 'player2_has_cards' => $player2HasCards
             ]);
-            
+
             if ($currentPlayer === 'bot' && !$player2HasCards && $player1HasCards) {
                 \Log::info('Trick winner (bot) has no cards but player does, switching current player to player');
                 $game['current_player'] = $game['player1_id'];
@@ -524,10 +524,10 @@ class SinglePlayerGameService
         $userId = $game['player1_id'];
         $isRegisteredUser = $userId && $userId !== 'anonymous';
         $playerWon = $player1Score > $player2Score;
-        
+
         if ($isRegisteredUser && $playerWon) {
             $coinReward = self::calculateSinglePlayerReward($player1Score, $player2Score);
-            
+
             if ($coinReward > 0) {
                 $user = User::find($userId);
                 if ($user) {
@@ -712,23 +712,23 @@ class SinglePlayerGameService
         if (count($game['current_trick']) === 1 && empty($game['deck'])) {
             $playedCard = $game['current_trick'][0];
             $playedBy = $playedCard['played_by'];
-            
+
             \Log::info('Auto-resolving incomplete trick in final phase', [
                 'played_by' => $playedBy,
                 'card_id' => $playedCard['id'],
                 'player1_hand_size' => count($game['player1_hand']),
                 'player2_hand_size' => count($game['player2_hand'])
             ]);
-            
+
             // The player who played the card automatically wins the incomplete trick
             $winnerId = $playedBy === 'bot' ? 'bot' : $game['player1_id'];
-            
+
             // Award points and clear trick
             $trickPoints = 0;
             foreach ($game['current_trick'] as $card) {
                 $trickPoints += $card['points'];
             }
-            
+
             if ($winnerId === $game['player1_id']) {
                 $game['player1_points'] += $trickPoints;
                 $game['player1_tricks'] = array_merge($game['player1_tricks'], $game['current_trick']);
@@ -736,21 +736,21 @@ class SinglePlayerGameService
                 $game['player2_points'] += $trickPoints;
                 $game['player2_tricks'] = array_merge($game['player2_tricks'], $game['current_trick']);
             }
-            
+
             $game['current_trick'] = [];
             $game['trick_leader'] = $winnerId;
-            
+
             \Log::info('Incomplete trick resolved, winner: ' . $winnerId . ', points awarded: ' . $trickPoints);
-            
+
             // Now check if game should end
             if (empty($game['deck']) && (empty($game['player1_hand']) || empty($game['player2_hand']))) {
                 \Log::info('GAME END: At least one player has no cards and deck is empty after incomplete trick resolution');
                 self::finishGame($game);
             }
-            
+
             $games[$gameId] = $game;
             self::saveGames($games);
-            
+
             return ['success' => true, 'game' => $game];
         }
 
@@ -763,7 +763,7 @@ class SinglePlayerGameService
 
         // Resolve the trick
         self::resolveTrick($game);
-        
+
         \Log::info('After resolveTrick called:', [
             'current_player' => $game['current_player'],
             'trick_leader' => $game['trick_leader'],
@@ -817,7 +817,7 @@ class SinglePlayerGameService
                     'deck_size' => count($game['deck'])
                 ]);
                 self::finishGame($game);
-                
+
                 // Update stored game and return immediately
                 $games[$gameId] = $game;
                 self::saveGames($games);
@@ -834,7 +834,7 @@ class SinglePlayerGameService
                 'deck_size' => count($game['deck'])
             ]);
             self::finishGame($game);
-            
+
             // Update stored game and return immediately
             $games[$gameId] = $game;
             self::saveGames($games);
