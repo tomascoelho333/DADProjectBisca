@@ -45,14 +45,11 @@ onMounted(() => {
     nickname.value = userStore.user.nickname
     email.value = userStore.user.email
     if (userStore.user.photo_avatar_filename) {
-      photoPreview.value = `http://127.0.0.1:8000/storage/photos/${userStore.user.photo_avatar_filename}`
+      photoPreview.value = `http://127.0.0.1:8000/storage/photos_avatars/${userStore.user.photo_avatar_filename}`
+    }else{
+      photoPreview.value = `http://127.0.0.1:8000/storage/photos_avatars/anonymous.png`
     }
   }
-})
-
-const userInitials = computed(() => {
-  const n = name.value || 'User'
-  return n.substring(0, 2).toUpperCase()
 })
 
 const handleFileChange = (event) => {
@@ -149,7 +146,6 @@ const handleDeleteAccount = async () => {
           <div class="flex flex-col items-center sm:flex-row gap-6">
             <Avatar class="h-24 w-24 border-2 border-slate-200">
               <AvatarImage :src="photoPreview" class="object-cover" />
-              <AvatarFallback class="text-xl">{{ userInitials }}</AvatarFallback>
             </Avatar>
             <div class="space-y-2 w-full">
               <Label for="photo">Profile Picture</Label>

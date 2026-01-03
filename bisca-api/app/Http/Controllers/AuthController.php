@@ -30,7 +30,7 @@ class AuthController extends Controller
 
         if ($request->hasFile('photo_avatar_filename')) {
             // Stores it on the public path
-            $path = $request->file('photo_avatar_filename')->store('photos', 'public');
+            $path = $request->file('photo_avatar_filename')->store('photos_avatars', 'public');
             // Gets only the filename
             $photoFilename = basename($path);
         }

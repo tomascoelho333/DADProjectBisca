@@ -95,7 +95,7 @@ const handleRegister = async () => {
 
           <div class="space-y-2">
             <Label for="name">Full Name</Label>
-            <Input id="name" v-model="name" placeholder="John Doe" required />
+            <Input id="name" v-model="name" placeholder="José João" required />
           </div>
 
           <div class="space-y-2">
