@@ -101,7 +101,6 @@ const router = createRouter({
       component: () => import("../views/AdminView.vue"),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
-=======
     },
     //Single Player Game (no auth required)
     {
@@ -124,7 +123,6 @@ const router = createRouter({
       name: 'game',
       redirect: '/dashboard'
     }
->>>>>>> origin/G3-commits
   ],
 });
 
@@ -149,11 +147,8 @@ router.beforeEach(async (to, from, next) => {
     if (localStorage.getItem("token")) {
       const success = await userStore.restoreToken();
 
-<<<<<<< HEAD
-=======
       const success = await userStore.restoreToken()
 
->>>>>>> origin/G3-commits
       if (success) {
         // Check if admin access is required
         if (to.meta.requiresAdmin && userStore.user.type !== 'A') {

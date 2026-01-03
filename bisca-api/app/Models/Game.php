@@ -10,7 +10,6 @@ class Game extends Model
     // Admins cannot participate in games
     // Games are only for players (type 'P')
     
-=======
     public $timestamps = false;
 
     protected $fillable = [
@@ -28,7 +27,6 @@ class Game extends Model
         'custom' => 'array'
     ];
 
->>>>>>> origin/G3-commits
     //Game always has 2 players (bot or not)
     public function player1()
     {

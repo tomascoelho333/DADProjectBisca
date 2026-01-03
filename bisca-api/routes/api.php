@@ -8,10 +8,8 @@ use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\UserController;
 <<<<<<< HEAD
 use App\Http\Controllers\WalletController;
-=======
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\MatchController;
->>>>>>> origin/G3-commits
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -115,8 +113,6 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
     Route::get('transactions', [AdminController::class, 'getTransactions']);
 
     // Match and Game Management (read-only)
-    Route::get('matches', [AdminController::class, 'getMatches']);
-    Route::get('matches/{matchId}', [AdminController::class, 'getMatchDetails']);
 
     // Platform Statistics and Summaries
     Route::get('platform-stats', [AdminController::class, 'getPlatformStats']);
@@ -124,7 +120,8 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
     // User Audit Log
     Route::get('audit/{userId}', [AdminController::class, 'getUserAuditLog']);
 });
-=======
+/*
+ *
  *  Game Related Routes
  *
  */
@@ -164,4 +161,3 @@ Route::prefix('matches')->group(function () {
         Route::post('/{match}/resign', [MatchController::class, 'resign']); // Resign from match
     });
 });
->>>>>>> origin/G3-commits
