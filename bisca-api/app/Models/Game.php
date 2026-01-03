@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Game extends Model
 {
-<<<<<<< HEAD
     // Admins cannot participate in games
     // Games are only for players (type 'P')
     

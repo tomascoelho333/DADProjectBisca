@@ -6,7 +6,6 @@ use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\UserController;
-<<<<<<< HEAD
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\MatchController;
