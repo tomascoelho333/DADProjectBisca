@@ -59,6 +59,14 @@ class GameController extends Controller
         ]);
 
         $user = Auth::user();
+        
+        // Admins cannot play games per requirement
+        if ($user && $user->type === 'A') {
+            return response()->json([
+                'message' => 'Administrators cannot play games.'
+            ], 403);
+        }
+        
         $stake = $request->stake ?? 1;
 
         \Log::info('GameController@store called', [
@@ -163,6 +171,13 @@ class GameController extends Controller
     public function join($gameId)
     {
         $user = Auth::user();
+        
+        // Admins cannot play games per requirement
+        if ($user && $user->type === 'A') {
+            return response()->json([
+                'message' => 'Administrators cannot play games.'
+            ], 403);
+        }
 
         \Log::info('User attempting to join game', [
             'game_id' => $gameId,

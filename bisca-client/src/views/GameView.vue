@@ -239,7 +239,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 
 // Props
@@ -253,11 +253,15 @@ const props = defineProps({
 
 const userStore = useUserStore()
 const router = useRouter()
+const route = useRoute()
 
 // Game state
 const gameStarted = ref(false)
 const gameState = ref(null)
-const gameType = ref('3')
+// Initialize gameType from query parameter or default to '9'
+const gameType = ref(
+  route.query.variant === 'bisca3' ? '3' : '9'
+)
 const availableGames = ref([])
 const currentGameId = ref(null)
 
@@ -1084,6 +1088,13 @@ const onImageError = (event) => {
 // Debug method to restart game if stuck
 // Lifecycle
 onMounted(() => {
+  // Prevent administrators from accessing game views
+  if (userStore.user && userStore.user.type === 'A') {
+    console.warn('Administrators cannot play games')
+    router.push('/admin')
+    return
+  }
+
   // Only load available games for multiplayer mode
   loadAvailableGames()
 

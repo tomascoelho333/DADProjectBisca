@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { 
   LogOut, LogIn, UserPlus, Coins, User as UserIcon, 
-  Trophy, BarChart3, HistoryIcon, Settings 
+  Trophy, BarChart3, HistoryIcon, Settings, Gamepad2, Users
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -98,7 +98,102 @@ const handleLogout = async () => {
         </CardContent>
       </Card>
 
-      <Card v-if="userStore.user">
+      <!-- Play Games Card (Not visible to Administrators) -->
+      <Card v-if="userStore.user && userStore.user.type !== 'A'" class="md:col-span-2 lg:col-span-2 bg-gradient-to-br from-blue-50 to-indigo-50 border-indigo-200">
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2 text-2xl">
+            <Gamepad2 class="w-6 h-6 text-indigo-600" /> Play Bisca
+          </CardTitle>
+          <CardDescription>Choose your game mode and variant</CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <div class="grid gap-4">
+            <!-- Single Player Section -->
+            <div class="bg-white rounded-lg p-4 border border-indigo-100">
+              <h3 class="font-semibold text-slate-700 mb-3">Single Player (Play vs Bot)</h3>
+              <div class="grid grid-cols-2 gap-2">
+                <Button 
+                  variant="secondary" 
+                  class="w-full justify-start" 
+                  @click="router.push({ name: 'singlePlayerGame', query: { variant: 'bisca9' } })"
+                >
+                  <Gamepad2 class="mr-2 h-4 w-4" /> Bisca de 9
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  class="w-full justify-start" 
+                  @click="router.push({ name: 'singlePlayerGame', query: { variant: 'bisca3' } })"
+                >
+                  <Gamepad2 class="mr-2 h-4 w-4" /> Bisca de 3
+                </Button>
+              </div>
+            </div>
+
+            <!-- Multiplayer Section (only for registered users) -->
+            <div v-if="userStore.user && userStore.user.type !== 'A'" class="bg-white rounded-lg p-4 border border-green-100">
+              <h3 class="font-semibold text-slate-700 mb-3">Multiplayer (Play vs Players)</h3>
+              <div class="grid grid-cols-2 gap-2">
+                <Button 
+                  variant="secondary" 
+                  class="w-full justify-start bg-green-50 hover:bg-green-100 text-green-900 border-green-200" 
+                  @click="router.push({ name: 'multiplayerGame', query: { variant: 'bisca9' } })"
+                >
+                  <Users class="mr-2 h-4 w-4" /> Bisca de 9
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  class="w-full justify-start bg-green-50 hover:bg-green-100 text-green-900 border-green-200" 
+                  @click="router.push({ name: 'multiplayerGame', query: { variant: 'bisca3' } })"
+                >
+                  <Users class="mr-2 h-4 w-4" /> Bisca de 3
+                </Button>
+              </div>
+              <p class="text-xs text-slate-500 mt-2 text-center">
+                Single game: 2 coins | Match (best of 4): 3+ coins
+              </p>
+            </div>
+
+            <!-- Guest notice -->
+            <div v-else class="bg-blue-50 rounded-lg p-3 border border-blue-200">
+              <p class="text-sm text-blue-900">
+                Sign in to play multiplayer games and earn coins!
+              </p>
+              <Button 
+                class="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white" 
+                @click="router.push('/login')"
+              >
+                Sign In to Play Multiplayer
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <!-- Administrator Notice Card -->
+      <Card v-if="userStore.user && userStore.user.type === 'A'" class="md:col-span-2 lg:col-span-2 bg-gradient-to-br from-red-50 to-orange-50 border-red-200">
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2 text-2xl text-red-900">
+            <Settings class="w-6 h-6 text-red-600" /> Administrator Account
+          </CardTitle>
+          <CardDescription class="text-red-800">You have administrative privileges</CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <p class="text-sm text-red-900 mb-4">
+            As an administrator, you have full access to the platform management tools and can view all users, transactions, and games. However, administrator accounts cannot play games or hold coins.
+          </p>
+          <Button 
+            class="w-full bg-red-600 hover:bg-red-700 text-white" 
+            @click="router.push('/admin')"
+          >
+            Go to Administration Panel
+          </Button>
+        </CardContent>
+      </Card>
+
+      <!-- Coins Balance Card (only for non-admin players) -->
+      <Card v-if="userStore.user && userStore.user.type !== 'A'" class="bg-yellow-50/50 border-yellow-200">
         <CardContent class="pt-6">
           <div class="flex items-center justify-between p-4 border rounded-lg bg-yellow-50/50 border-yellow-200">
             <div class="flex items-center gap-4">
@@ -116,10 +211,11 @@ const handleLogout = async () => {
                 </Button>
             </div>
           </div>
-          </CardContent>
+        </CardContent>
       </Card>
 
-      <Card v-else class="bg-slate-900 text-white border-slate-800">
+      <!-- Guest CTA Card -->
+      <Card v-else-if="!userStore.user" class="bg-slate-900 text-white border-slate-800">
         <CardHeader>
           <CardTitle class="text-xl">Ready to join the table?</CardTitle>
           <CardDescription class="text-slate-400">

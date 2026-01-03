@@ -35,6 +35,14 @@ class MatchController extends Controller
         ]);
 
         $user = Auth::user();
+        
+        // Admins cannot play games or participate in matches per requirement
+        if ($user && $user->type === 'A') {
+            return response()->json([
+                'message' => 'Administrators cannot play games or participate in matches.'
+            ], 403);
+        }
+        
         $stake = $request->stake;
 
         // Check if user has enough coins for the match stake
@@ -66,6 +74,13 @@ class MatchController extends Controller
     public function join($matchId)
     {
         $user = Auth::user();
+        
+        // Admins cannot play games or participate in matches per requirement
+        if ($user && $user->type === 'A') {
+            return response()->json([
+                'message' => 'Administrators cannot play games or participate in matches.'
+            ], 403);
+        }
 
         DB::beginTransaction();
         try {
