@@ -5,6 +5,7 @@ use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -78,5 +79,13 @@ Route::prefix('history')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('{id}', [HistoryController::class, 'show']);
         Route::get('/', [HistoryController::class, 'index']);
+    });
+});
+
+Route::prefix('funds')->group(function () {
+    //Protected Routes
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('add',[WalletController::class, 'purchase']);
+        Route::get('history', [WalletController::class, 'history']);
     });
 });
