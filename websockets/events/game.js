@@ -5,6 +5,14 @@ import { server } from "../server.js"
 export const handleGameEvents = (io, socket) => {
     socket.on("create-game", (difficulty) => {
         const user = getUser(socket.id)
+        
+        // Prevent admins from creating games
+        if (user.type === 'A') {
+            socket.emit("error", { message: "Administrators cannot participate in games." })
+            console.log(`[Game] Admin ${user.name} attempted to create a game (denied)`)
+            return
+        }
+        
         const game = createGame(difficulty, user)
         socket.join(`game-${game.id}`)
         console.log(`[Game] ${user.name} created a new game - ID: ${game.id}`)
@@ -16,6 +24,15 @@ export const handleGameEvents = (io, socket) => {
     })
     
     socket.on("join-game", (gameID, userID) => {
+        const user = getUser(socket.id)
+        
+        // Prevent admins from joining games
+        if (user.type === 'A') {
+            socket.emit("error", { message: "Administrators cannot participate in games." })
+            console.log(`[Game] Admin ${user.name} attempted to join game ${gameID} (denied)`)
+            return
+        }
+        
         joinGame(gameID, userID)
         socket.join(`game-${gameID}`)
         console.log(`[Game] User ${userID} joined game ${gameID}`)

@@ -12,9 +12,9 @@ class WalletController extends Controller
         $user = $request->user();
 
         if($user->type !== 'P'){
-            return response(json([
-                'message' => 'Only players can purchase coins.'
-            ], 403));
+            return response()->json([
+                'message' => 'Only players can purchase coins. Administrators cannot hold coins.'
+            ], 403);
         }
 
         $request -> validate([

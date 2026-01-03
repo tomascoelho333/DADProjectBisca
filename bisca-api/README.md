@@ -50,6 +50,39 @@ Thank you for considering contributing to the Laravel framework! The contributio
 
 In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
+## Bisca Platform - Administration Features
+
+The Bisca API includes comprehensive administration features for platform management:
+
+### Admin Endpoints (All require authentication and admin privileges)
+- `GET /api/admin/users` - View all platform users with filtering
+- `GET /api/admin/users/{user}` - View detailed user statistics
+- `PUT /api/admin/users/{user}/toggle-block` - Block/unblock players
+- `DELETE /api/admin/users/{user}` - Delete user accounts (with soft-delete for active users)
+- `POST /api/admin/create-admin` - Create new administrator accounts
+- `GET /api/admin/transactions` - View all platform transactions (read-only)
+- `GET /api/admin/matches` - View all multiplayer matches (read-only)
+- `GET /api/admin/matches/{matchId}` - View match details with all games
+- `GET /api/admin/platform-stats` - Get comprehensive platform statistics
+- `GET /api/admin/audit/{userId}` - Get complete audit trail for a user
+
+### Admin Features
+- User account management (create, block, unblock, delete)
+- Admin-only account creation (not available through public registration)
+- Transaction monitoring and audit trails
+- Match and game statistics viewing
+- Platform-wide statistics and business metrics
+- Soft-delete preservation of accounts with activity history
+
+### Security
+- Administrators cannot participate in games
+- Administrators cannot hold or purchase coins
+- Administrators cannot delete their own accounts
+- Soft-delete used for accounts with prior activity to preserve data integrity
+- All admin actions require proper authentication and authorization
+
+For detailed documentation on all administration features, see [ADMINISTRATION_IMPLEMENTATION.md](../ADMINISTRATION_IMPLEMENTATION.md).
+
 ## Security Vulnerabilities
 
 If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.

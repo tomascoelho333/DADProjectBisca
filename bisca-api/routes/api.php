@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\LeaderboardController;
@@ -88,4 +89,32 @@ Route::prefix('funds')->group(function () {
         Route::post('add',[WalletController::class, 'purchase']);
         Route::get('history', [WalletController::class, 'history']);
     });
+});
+/*
+ *
+ * Administration Related Routes
+ *
+ */
+Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
+    // User Management
+    Route::get('users', [AdminController::class, 'getAllUsers']);
+    Route::get('users/{user}', [AdminController::class, 'getUserDetails']);
+    Route::put('users/{user}/toggle-block', [AdminController::class, 'toggleBlockUser']);
+    Route::delete('users/{user}', [AdminController::class, 'deleteUser']);
+
+    // Admin Account Creation (only admins can create admins)
+    Route::post('create-admin', [AdminController::class, 'createAdmin']);
+
+    // Transaction Management (read-only)
+    Route::get('transactions', [AdminController::class, 'getTransactions']);
+
+    // Match and Game Management (read-only)
+    Route::get('matches', [AdminController::class, 'getMatches']);
+    Route::get('matches/{matchId}', [AdminController::class, 'getMatchDetails']);
+
+    // Platform Statistics and Summaries
+    Route::get('platform-stats', [AdminController::class, 'getPlatformStats']);
+
+    // User Audit Log
+    Route::get('audit/{userId}', [AdminController::class, 'getUserAuditLog']);
 });

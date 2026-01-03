@@ -75,6 +75,13 @@ const router = createRouter({
       component: () => import("../views/FundsView.vue"),
       meta: { requiresAuth: true },
     },
+    // Admin
+    {
+      path: "/admin",
+      name: "admin",
+      component: () => import("../views/AdminView.vue"),
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
   ],
 });
 
@@ -84,6 +91,10 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
     // If the user in on memory
     if (userStore.user) {
+      // Check if admin access is required
+      if (to.meta.requiresAdmin && userStore.user.type !== 'A') {
+        return next('/dashboard');
+      }
       return next();
     }
 
@@ -92,6 +103,10 @@ router.beforeEach(async (to, from, next) => {
       const success = await userStore.restoreToken();
 
       if (success) {
+        // Check if admin access is required
+        if (to.meta.requiresAdmin && userStore.user.type !== 'A') {
+          return next('/dashboard');
+        }
         return next();
       } else {
         return next("/login"); // Token Expired

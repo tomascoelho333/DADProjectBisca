@@ -70,7 +70,7 @@ class User extends Authenticatable
         return $this->hasMany(Game::class, 'winner_user_id');
     }
 
-    protected function transtactions() : HasMany
+    public function transactions() : HasMany
     {
         return $this->hasMany(CoinTransaction::class);
     }

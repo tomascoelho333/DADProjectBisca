@@ -7,7 +7,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { 
   LogOut, LogIn, UserPlus, Coins, User as UserIcon, 
-  Trophy, BarChart3, HistoryIcon 
+  Trophy, BarChart3, HistoryIcon, Settings 
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -80,6 +80,9 @@ const handleLogout = async () => {
                 </Button>
                 <Button variant="secondary" class="w-full justify-start" @click="router.push('/history')">
                   <HistoryIcon class="mr-2 h-4 w-4" /> My Game History
+                </Button>
+                <Button v-if="userStore.user.type === 'A'" variant="secondary" class="w-full justify-start bg-red-50 hover:bg-red-100 text-red-900" @click="router.push('/admin')">
+                  <Settings class="mr-2 h-4 w-4" /> Administration
                 </Button>
             </div>
 
