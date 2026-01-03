@@ -1,8 +1,17 @@
+<<<<<<< HEAD
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
 import { useUserStore } from "@/stores/user";
+=======
+import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/LoginView.vue'
+import RegisterView from '@/views/RegisterView.vue'
+import SimpleTestView from '@/views/SimpleTestView.vue'
+import { useUserStore } from '@/stores/user'
+>>>>>>> origin/G3-commits
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,7 +21,16 @@ const router = createRouter({
       name: "home",
       // Default value is commented:
       //component: HomeView,
+<<<<<<< HEAD
       redirect: '/dashboard',
+=======
+      redirect: '/test',
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: SimpleTestView
+>>>>>>> origin/G3-commits
     },
     {
       path: "/about",
@@ -47,6 +65,7 @@ const router = createRouter({
       name: 'profile',
       component: () => import('../views/ProfileView.vue'),
       meta: { requiresAuth: true }
+<<<<<<< HEAD
     }, 
     // Statistics
     {
@@ -82,11 +101,39 @@ const router = createRouter({
       component: () => import("../views/AdminView.vue"),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
+=======
+    },
+    //Single Player Game (no auth required)
+    {
+      path: '/game/single',
+      name: 'singlePlayerGame',
+      component: () => import('../views/GameView.vue'),
+      props: { gameMode: 'single' }
+    },
+    //Multiplayer Game (auth required)
+    {
+      path: '/game/multiplayer',
+      name: 'multiplayerGame',
+      component: () => import('../views/GameView.vue'),
+      meta: { requiresAuth: true },
+      props: { gameMode: 'multiplayer' }
+    },
+    //Legacy Game route (redirect to dashboard for game selection)
+    {
+      path: '/game',
+      name: 'game',
+      redirect: '/dashboard'
+    }
+>>>>>>> origin/G3-commits
   ],
 });
 
 router.beforeEach(async (to, from, next) => {
+<<<<<<< HEAD
   const userStore = useUserStore();
+=======
+  const userStore = useUserStore()
+>>>>>>> origin/G3-commits
 
   if (to.meta.requiresAuth) {
     // If the user in on memory
@@ -102,6 +149,11 @@ router.beforeEach(async (to, from, next) => {
     if (localStorage.getItem("token")) {
       const success = await userStore.restoreToken();
 
+<<<<<<< HEAD
+=======
+      const success = await userStore.restoreToken()
+
+>>>>>>> origin/G3-commits
       if (success) {
         // Check if admin access is required
         if (to.meta.requiresAdmin && userStore.user.type !== 'A') {
@@ -118,6 +170,12 @@ router.beforeEach(async (to, from, next) => {
   if ((to.name === "login" || to.name === "register") && userStore.isAuthenticated) {
     return next("/dashboard");
   }
+<<<<<<< HEAD
+=======
+
+  next()
+})
+>>>>>>> origin/G3-commits
 
   next();
 });

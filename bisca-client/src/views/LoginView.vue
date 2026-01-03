@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { Loader2 } from 'lucide-vue-next'
+import { Loader2, GamepadIcon, Users } from 'lucide-vue-next'
 
 // Components Shadcn UI
 import { Button } from '@/components/ui/button'
@@ -48,6 +48,10 @@ const handleLogin = async () => {
     isLoading.value = false
   }
 }
+
+const playAsGuest = () => {
+  router.push('/game/single')
+}
 </script>
 
 <template>
@@ -59,7 +63,7 @@ const handleLogin = async () => {
           Enter Email and Password
         </CardDescription>
       </CardHeader>
-      
+
       <CardContent>
         <form @submit.prevent="handleLogin" class="space-y-4">
           <Alert v-if="error" variant="destructive">
@@ -69,22 +73,22 @@ const handleLogin = async () => {
 
           <div class="space-y-2">
             <Label for="email">Email</Label>
-            <Input 
-              id="email" 
-              type="email" 
-              placeholder="example@mail.pt" 
+            <Input
+              id="email"
+              type="email"
+              placeholder="example@mail.pt"
               v-model="email"
-              required 
+              required
             />
           </div>
 
           <div class="space-y-2">
             <Label for="password">Password</Label>
-            <Input 
-              id="password" 
-              type="password" 
+            <Input
+              id="password"
+              type="password"
               v-model="password"
-              required 
+              required
             />
           </div>
 
@@ -95,8 +99,29 @@ const handleLogin = async () => {
           </Button>
         </form>
       </CardContent>
-      
-      <CardFooter class="flex flex-col space-y-2 text-center">
+
+      <CardFooter class="flex flex-col space-y-4 text-center">
+        <!-- Separator -->
+        <div class="relative w-full">
+          <div class="absolute inset-0 flex items-center">
+            <span class="w-full border-t" />
+          </div>
+          <div class="relative flex justify-center text-xs uppercase">
+            <span class="bg-background px-2 text-muted-foreground">Or</span>
+          </div>
+        </div>
+
+        <!-- Play as Guest Button -->
+        <Button
+          @click="playAsGuest"
+          variant="outline"
+          class="w-full"
+        >
+          <GamepadIcon class="w-4 h-4 mr-2" />
+          Play Single Player (Guest)
+        </Button>
+
+        <!-- Register Link -->
         <div class="text-sm text-muted-foreground">
           No Account?
           <router-link to="/register" class="text-primary hover:underline">
