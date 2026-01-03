@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,5 +37,13 @@ Route::prefix('users')->group(function () {
         Route::match(['put', 'post'], 'me', [UserController::class, 'update']);
         // User Deletion
         Route::delete('me', [UserController::class, 'destroy']);
+    });
+});
+
+Route::prefix('funds')->group(function () {
+    //Protected Routes
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('add',[WalletController::class, 'purchase']);
+        Route::get('history', [WalletController::class, 'history']);
     });
 });
