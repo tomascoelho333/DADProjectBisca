@@ -1,0 +1,10 @@
+{
+	order php_handler before file_server
+}
+
+:80 {
+	root /app/public
+	file_server
+	php_handler
+	encode gzip
+}

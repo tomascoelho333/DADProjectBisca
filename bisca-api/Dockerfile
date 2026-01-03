@@ -1,0 +1,21 @@
+FROM dunglas/frankenphp:1.10.1-php8.3
+
+RUN install-php-extensions \
+    pdo_mysql \
+    gd \
+    intl \
+    zip \
+    opcache
+
+COPY Caddyfile /etc/frankenphp/Caddyfile
+
+COPY . /app
+
+WORKDIR /app
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+RUN composer install 
+
+RUN chown -R www-data:www-data /app \
+    && chmod -R 755 /app/storage

@@ -189,7 +189,7 @@
           </div>
           <div class="form-group">
             <label for="admin-photo">Profile Photo (Optional)</label>
-            <input v-model="newAdminForm.photo_avatar_filename" id="admin-photo" type="file" accept="image/*" />
+            <input id="admin-photo" type="file" accept="image/*" @change="(event) => { newAdminForm.photo_avatar_filename = event.target.files?.[0] }" />
           </div>
           <div v-if="createAdminMessage" :class="['message', createAdminMessageType]">
             {{ createAdminMessage }}

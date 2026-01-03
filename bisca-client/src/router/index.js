@@ -1,17 +1,9 @@
-<<<<<<< HEAD
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import LoginView from "../views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
+import SimpleTestView from "@/views/SimpleTestView.vue";
 import { useUserStore } from "@/stores/user";
-=======
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LoginView from '../views/LoginView.vue'
-import RegisterView from '@/views/RegisterView.vue'
-import SimpleTestView from '@/views/SimpleTestView.vue'
-import { useUserStore } from '@/stores/user'
->>>>>>> origin/G3-commits
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,16 +13,12 @@ const router = createRouter({
       name: "home",
       // Default value is commented:
       //component: HomeView,
-<<<<<<< HEAD
       redirect: '/dashboard',
-=======
-      redirect: '/test',
     },
     {
       path: '/test',
       name: 'test',
       component: SimpleTestView
->>>>>>> origin/G3-commits
     },
     {
       path: "/about",
@@ -65,9 +53,7 @@ const router = createRouter({
       name: 'profile',
       component: () => import('../views/ProfileView.vue'),
       meta: { requiresAuth: true }
-<<<<<<< HEAD
-    }, 
-    // Statistics
+    },
     {
       path: '/stats',
       name: 'statistics',
@@ -101,7 +87,6 @@ const router = createRouter({
       component: () => import("../views/AdminView.vue"),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
-    },
     //Single Player Game (no auth required)
     {
       path: '/game/single',
@@ -127,11 +112,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-<<<<<<< HEAD
   const userStore = useUserStore();
-=======
-  const userStore = useUserStore()
->>>>>>> origin/G3-commits
 
   if (to.meta.requiresAuth) {
     // If the user in on memory
@@ -146,8 +127,6 @@ router.beforeEach(async (to, from, next) => {
     // No user but has token
     if (localStorage.getItem("token")) {
       const success = await userStore.restoreToken();
-
-      const success = await userStore.restoreToken()
 
       if (success) {
         // Check if admin access is required
@@ -165,12 +144,6 @@ router.beforeEach(async (to, from, next) => {
   if ((to.name === "login" || to.name === "register") && userStore.isAuthenticated) {
     return next("/dashboard");
   }
-<<<<<<< HEAD
-=======
-
-  next()
-})
->>>>>>> origin/G3-commits
 
   next();
 });
