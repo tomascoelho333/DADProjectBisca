@@ -26,6 +26,9 @@ class UsersSeeder extends Seeder
         ['type' => 'A', 'name' => 'Third Administrator', 'email' => 'a3@mail.pt', 'gender' => 'M', 'softdelete' => false],
         ['type' => 'A', 'name' => 'Forth Administrator', 'email' => 'a4@mail.pt', 'gender' => 'M', 'softdelete' => true],
 
+        // Special Bot user for single-player games
+        ['type' => 'P', 'name' => 'Bot Player', 'email' => 'bot@system.local', 'gender' => 'M', 'softdelete' => false],
+
         ['type' => 'P', 'name' => 'Player A', 'email' => 'pa@mail.pt', 'gender' => 'M', 'softdelete' => false],
         ['type' => 'P', 'name' => 'Player B', 'email' => 'pb@mail.pt', 'gender' => 'M', 'softdelete' => false],
         ['type' => 'P', 'name' => 'Player C', 'email' => 'pc@mail.pt', 'gender' => 'F', 'softdelete' => false],

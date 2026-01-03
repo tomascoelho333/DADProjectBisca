@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
+import SimpleTestView from '@/views/SimpleTestView.vue'
 import { useUserStore } from '@/stores/user'
 
 const router = createRouter({
@@ -12,7 +13,12 @@ const router = createRouter({
       name: 'home',
       // Default value is commented:
       //component: HomeView,
-      redirect: '/login',
+      redirect: '/test',
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: SimpleTestView
     },
     {
       path: '/about',
@@ -47,14 +53,35 @@ const router = createRouter({
       name: 'profile',
       component: () => import('../views/ProfileView.vue'),
       meta: { requiresAuth: true }
+    },
+    //Single Player Game (no auth required)
+    {
+      path: '/game/single',
+      name: 'singlePlayerGame',
+      component: () => import('../views/GameView.vue'),
+      props: { gameMode: 'single' }
+    },
+    //Multiplayer Game (auth required)
+    {
+      path: '/game/multiplayer',
+      name: 'multiplayerGame',
+      component: () => import('../views/GameView.vue'),
+      meta: { requiresAuth: true },
+      props: { gameMode: 'multiplayer' }
+    },
+    //Legacy Game route (redirect to dashboard for game selection)
+    {
+      path: '/game',
+      name: 'game',
+      redirect: '/dashboard'
     }
   ],
 })
 
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
-  
-  if (to.meta.requiresAuth) {   
+
+  if (to.meta.requiresAuth) {
     // If the user in on memory
     if (userStore.user) {
       return next()
@@ -64,7 +91,7 @@ router.beforeEach(async (to, from, next) => {
     if (localStorage.getItem('token')) {
 
       const success = await userStore.restoreToken()
-      
+
       if (success) {
         return next()
       } else {
@@ -77,7 +104,7 @@ router.beforeEach(async (to, from, next) => {
   if ((to.name === 'login' || to.name === 'register') && userStore.isAuthenticated) {
       return next('/dashboard')
   }
-  
+
   next()
 })
 

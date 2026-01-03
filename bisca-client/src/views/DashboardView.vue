@@ -11,7 +11,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { LogOut, Trash2, Coins, User as UserIcon, Trophy } from 'lucide-vue-next'
+import { LogOut, Trash2, Coins, User as UserIcon, Trophy, GamepadIcon, Users } from 'lucide-vue-next'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -41,7 +41,7 @@ const userInitials = computed(() => {
     const lastInitial = names[names.length - 1][0]
     return (firstInitial + lastInitial).toUpperCase()
   }
-  
+
   //Only 1 name
   return name.substring(0, 2).toUpperCase()
 })
@@ -50,6 +50,15 @@ const userInitials = computed(() => {
 const handleLogout = async () => {
   await userStore.logout()
   router.push('/login')
+}
+
+// Game Navigation
+const startSinglePlayerGame = () => {
+  router.push('/game/single')
+}
+
+const startMultiplayerGame = () => {
+  router.push('/game/multiplayer')
 }
 
 const handleDeleteAccount = async () => {
@@ -65,7 +74,7 @@ const handleDeleteAccount = async () => {
     // If successful, logout and redirect to login
     await userStore.logout()
     router.push('/login')
-    
+
   } catch (e) {
     // Get error message from API or fallback
     deleteError.value = e.response?.data?.message || 'Error deleting account.'
@@ -77,7 +86,7 @@ const handleDeleteAccount = async () => {
 
 <template>
   <div class="min-h-screen bg-slate-50 p-4 md:p-8">
-    
+
     <header class="max-w-5xl mx-auto flex justify-between items-center mb-8">
       <div>
         <h1 class="text-3xl font-bold tracking-tight text-slate-900">Dashboard</h1>
@@ -89,8 +98,9 @@ const handleDeleteAccount = async () => {
       </Button>
     </header>
 
-    <main class="max-w-5xl mx-auto grid gap-6 md:grid-cols-2">
-      
+    <main class="max-w-5xl mx-auto grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+      <!-- User Profile Card -->
       <Card>
         <CardHeader class="flex flex-row items-center gap-4">
           <Avatar class="h-16 w-16">
@@ -107,9 +117,9 @@ const handleDeleteAccount = async () => {
         </CardHeader>
         <CardContent>
           <div class="grid gap-2">
-             <Button 
-              variant="secondary" 
-              class="w-full justify-start" 
+             <Button
+              variant="secondary"
+              class="w-full justify-start"
               @click="router.push('/profile')"
             >
               <UserIcon class="mr-2 h-4 w-4" /> Edit Profile
@@ -118,13 +128,48 @@ const handleDeleteAccount = async () => {
         </CardContent>
       </Card>
 
+      <!-- Game Modes Card -->
+      <Card>
+        <CardHeader>
+          <CardTitle>Play Bisca</CardTitle>
+          <CardDescription>Choose your game mode</CardDescription>
+        </CardHeader>
+        <CardContent class="grid gap-3">
+          <Button
+            @click="startSinglePlayerGame"
+            class="w-full justify-start h-12"
+            variant="default"
+          >
+            <GamepadIcon class="mr-3 h-5 w-5" />
+            <div class="text-left">
+              <div class="font-semibold">Single Player</div>
+              <div class="text-xs text-muted-foreground">Play against bot</div>
+            </div>
+          </Button>
+
+          <Button
+            @click="startMultiplayerGame"
+            class="w-full justify-start h-12"
+            variant="outline"
+          >
+            <Users class="mr-3 h-5 w-5" />
+            <div class="text-left">
+              <div class="font-semibold">Multiplayer</div>
+              <div class="text-xs text-muted-foreground">Play against other players</div>
+            </div>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <!-- Statistics Card -->
+
       <Card>
         <CardHeader>
           <CardTitle>Statistics</CardTitle>
           <CardDescription>Your game performance</CardDescription>
         </CardHeader>
         <CardContent class="grid gap-4">
-          
+
           <div class="flex items-center justify-between p-4 border rounded-lg bg-slate-100">
             <div class="flex items-center gap-2">
               <div class="p-2 bg-yellow-100 rounded-full">
