@@ -975,13 +975,20 @@ class GameController extends Controller
             'custom_state_winner' => $gameState['winner']
         ]);
 
-        // Award payout to winner
-        $stake = $gameState['stake'] ?? 1;
-        $payout = $stake * 2; // Winner gets both stakes
+        // Award payout to winner (winner gets both players' stakes)
+        $gameFee = $gameState['game_fee'] ?? 2; // Get the actual game fee per player
+        $payout = $gameFee * 2; // Winner gets both stakes
 
         if ($opponentId) { // Not a bot game
             $winner = User::find($opponentId);
-            $this->awardGamePayout($winner, $payout, $game->id, "Legacy game win");
+            $this->awardGamePayout($winner, $payout, $game->id, "Multiplayer resignation win");
+            
+            \Log::info('RESIGN: Payout awarded to winner', [
+                'game_id' => $game->id,
+                'winner_id' => $opponentId,
+                'game_fee_per_player' => $gameFee,
+                'total_payout' => $payout
+            ]);
         }
 
         $game->save();
@@ -1026,24 +1033,33 @@ class GameController extends Controller
             $gameFee = $gameState['game_fee'] ?? 2; // Default 2 coins per player for standalone games
 
             if ($game->is_draw) {
-                // In case of draw, refund 1 coin to each player
+                // In case of draw, refund original stakes to each player
                 $player1 = User::find($game->player1_user_id);
                 $player2 = User::find($game->player2_user_id);
-                $this->awardGamePayout($player1, 1, $game->id, 'Draw refund');
-                $this->awardGamePayout($player2, 1, $game->id, 'Draw refund');
+                $this->awardGamePayout($player1, $gameFee, $game->id, 'Draw refund');
+                $this->awardGamePayout($player2, $gameFee, $game->id, 'Draw refund');
+                
+                \Log::info('PAYOUT: Draw - refunding stakes to both players', [
+                    'game_id' => $game->id,
+                    'game_fee_per_player' => $gameFee,
+                    'player1_refund' => $gameFee,
+                    'player2_refund' => $gameFee
+                ]);
             } elseif ($game->winner_user_id) {
-                // Determine payout based on winner's score (according to specification)
-                $winnerScore = $game->winner_user_id === $game->player1_user_id ? $player1Score : $player2Score;
-
-                $payout = 3; // Basic win (≥61 points)
-                if ($winnerScore >= 120) {
-                    $payout = 6; // Bandeira (120 points)
-                } elseif ($winnerScore >= 91) {
-                    $payout = 4; // Capote (≥91 points)
-                }
-
+                // Winner takes both stakes (simple winner-takes-all system)
+                $totalPayout = $gameFee * 2; // Winner gets both players' stakes
                 $winner = User::find($game->winner_user_id);
-                $this->awardGamePayout($winner, $payout, $game->id, "Game win ({$winnerScore} points)");
+                
+                $winnerScore = $game->winner_user_id === $game->player1_user_id ? $player1Score : $player2Score;
+                $this->awardGamePayout($winner, $totalPayout, $game->id, "Multiplayer win ({$winnerScore} points)");
+                
+                \Log::info('PAYOUT: Winner takes all stakes', [
+                    'game_id' => $game->id,
+                    'winner_id' => $game->winner_user_id,
+                    'winner_score' => $winnerScore,
+                    'game_fee_per_player' => $gameFee,
+                    'total_payout' => $totalPayout
+                ]);
             }
         }
 
